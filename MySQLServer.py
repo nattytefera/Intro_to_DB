@@ -1,44 +1,42 @@
-CREATE DATABASE IF NOT EXISTS alx_book_store;
-USE alx_book_store;
+# MySQLServer.py
 
--- Create the Authors table
-CREATE TABLE IF NOT EXISTS Authors (
-    author_id INT AUTO_INCREMENT PRIMARY KEY,
-    author_name VARCHAR(215)
-);
+import mysql.connector
 
--- Create the Customers table
-CREATE TABLE IF NOT EXISTS Customers (
-    customer_id INT AUTO_INCREMENT PRIMARY KEY,
-    customer_name VARCHAR(215),
-    email VARCHAR(215),
-    address TEXT
-);
+def create_database(host, user, password):
+    try:
+        # Attempt to connect to MySQL server (without specifying the database initially)
+        mydb = mysql.connector.connect(
+            host=host,
+            user=user,
+            password=password
+        )
 
--- Create the Books table
-CREATE TABLE IF NOT EXISTS Books (
-    book_id INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(130),
-    author_id INT,
-    price DOUBLE,
-    publication_date DATE,
-    FOREIGN KEY (author_id) REFERENCES Authors(author_id)
-);
+        mycursor = mydb.cursor()
 
--- Create the Orders table
-CREATE TABLE IF NOT EXISTS Orders (
-    order_id INT AUTO_INCREMENT PRIMARY KEY,
-    customer_id INT,
-    order_date DATE,
-    FOREIGN KEY (customer_id) REFERENCES Customers(customer_id)
-);
+        # Check if the database exists (using CREATE DATABASE IF NOT EXISTS)
+        mycursor.execute("CREATE DATABASE IF NOT EXISTS alx_book_store")
 
--- Create the Order_Details table
-CREATE TABLE IF NOT EXISTS Order_Details (
-    orderdetailid INT AUTO_INCREMENT PRIMARY KEY,
-    order_id INT,
-    book_id INT,
-    quantity DOUBLE,
-    FOREIGN KEY (order_id) REFERENCES Orders(order_id),
-    FOREIGN KEY (book_id) REFERENCES Books(book_id)
-);
+        # Optionally: Select the database to confirm it's there (not strictly required by the prompt, but good practice)
+        mycursor.execute("USE alx_book_store")  # or mydb.database = "alx_book_store"
+
+        print("Database 'alx_book_store' created successfully!")
+
+    except mysql.connector.Error as err:
+        if err.errno == 1007:  # Database already exists (though we should not get this because of IF NOT EXISTS)
+            print("Database 'alx_book_store' already exists.") # Handle the case where the database exists.
+        else:
+            print(f"Error connecting or creating database: {err}")  # Handle other potential errors.
+    finally:
+        if mydb.is_connected():
+            mycursor.close()
+            mydb.close()
+            print("Database connection closed.")
+
+
+if __name__ == "__main__":
+    # Replace with your MySQL server credentials
+    host = "localhost"  # Or your MySQL server address
+    user = "your_user"  # Your MySQL username
+    password = "your_password"  # Your MySQL password
+
+    create_database(host, user, password)
