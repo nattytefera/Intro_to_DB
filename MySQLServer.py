@@ -1,32 +1,47 @@
-import mysql.connector
-from mysql.connector import Error
+-- alx_book_store.sql
 
+-- Create the alx_book_store database
+CREATE DATABASE IF NOT EXISTS alx_book_store;
+USE alx_book_store;
 
-def create_database():
-    try:
-        # Connect to MySQL Server (Modify 'your_user' and 'your_password' as needed)
-        connection = mysql.connector.connect(
-            host="localhost",
-            user="your_user",
-            password="your_password"
-        )
+-- Create the Authors table
+CREATE TABLE IF NOT EXISTS Authors (
+    author_id INT AUTO_INCREMENT PRIMARY KEY,
+    author_name VARCHAR(215)
+);
 
-        if connection.is_connected():
-            cursor = connection.cursor()
-            # Create database if it doesn't exist
-            cursor.execute("CREATE DATABASE IF NOT EXISTS alx_book_store;")
-            print("Database 'alx_book_store' created successfully!")
+-- Create the Customers table
+CREATE TABLE IF NOT EXISTS Customers (
+    customer_id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_name VARCHAR(215),
+    email VARCHAR(215),
+    address TEXT
+);
 
-    except Error as e:
-        print(f"Error: {e}")
+-- Create the Books table
+CREATE TABLE IF NOT EXISTS Books (
+    book_id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(130),
+    author_id INT,
+    price DOUBLE,
+    publication_date DATE,
+    FOREIGN KEY (author_id) REFERENCES Authors(author_id)
+);
 
-    finally:
-        # Close the connection
-        if 'connection' in locals() and connection.is_connected():
-            cursor.close()
-            connection.close()
-            print("MySQL connection closed.")
+-- Create the Orders table
+CREATE TABLE IF NOT EXISTS Orders (
+    order_id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT,
+    order_date DATE,
+    FOREIGN KEY (customer_id) REFERENCES Customers(customer_id)
+);
 
-
-if __name__ == "__main__":
-    create_database()
+-- Create the Order_Details table
+CREATE TABLE IF NOT EXISTS Order_Details (
+    orderdetailid INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT,
+    book_id INT,
+    quantity DOUBLE,
+    FOREIGN KEY (order_id) REFERENCES Orders(order_id),
+    FOREIGN KEY (book_id) REFERENCES Books(book_id)
+);
